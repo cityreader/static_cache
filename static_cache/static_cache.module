@@ -1,0 +1,48 @@
+<?php
+
+function static_cache_get($cid, $key, $reset = FALSE, $func, $args = array()) {
+//  $cid = 'static_cache:' . $cid;
+  $cache =& drupal_static($cid, array());
+
+  if ($reset || !isset($cache[$key]) || is_null($cache[$key])) {
+    if (is_string($func)) {
+      $cache[$key] = call_user_func_array($func, $args);
+    }
+    elseif (is_callable($func)) {
+      $cache[$key] = $func();
+    }
+    else {
+      trigger_error('$func is not callable or function name', E_USER_ERROR);
+    }
+  }
+
+  return $cache[$key];
+}
+
+trait StaticCache {
+  protected $staticCache = array();
+
+  public function staticCacheGet($cid, $key = NULL, $reset = FALSE, $func) {
+    if (!isset($this->staticCache[$cid]) || is_null($this->staticCache[$cid])) {
+      $this->staticCache[$cid] = is_null($key) ? NULL : array();
+    }
+
+    $cache =& $this->staticCache[$cid];
+
+    if (is_null($key)) {
+      if ($reset || !isset($cache) || is_null($cache)) {
+        $cache = $func();
+      }
+
+      return $cache;
+    }
+    else {
+      if ($reset || !isset($cache[$key]) || is_null($cache[$key])) {
+        $cache[$key] = $func();
+      }
+
+      return $cache[$key];
+    }
+  }
+
+}

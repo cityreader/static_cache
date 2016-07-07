@@ -1,0 +1,5 @@
+name = Static cache
+description = Provide static cache central management function.
+package = Performance and scalability
+core = 7.x
+
